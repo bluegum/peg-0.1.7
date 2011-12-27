@@ -396,7 +396,7 @@ static char *preamble= "\
 \n\
 #ifndef YY_PART\n\
 \n\
-typedef void (*yyaction)(char *yytext, int yyleng);\n\
+typedef void (*yyaction)(char *yytext, int yyleng, int offset);\n\
 typedef struct _yythunk { int begin, end;  yyaction  action;  struct _yythunk *next; } yythunk;\n\
 \n\
 YY_VARIABLE(char *   ) yybuf= 0;\n\
@@ -521,7 +521,7 @@ YY_LOCAL(void) yyDone(void)\n\
       yythunk *thunk= &yythunks[pos];\n\
       int yyleng= thunk->end ? yyText(thunk->begin, thunk->end) : thunk->begin;\n\
       yyprintf((stderr, \"DO [%d] %p %s\\n\", pos, thunk->action, yytext));\n\
-      thunk->action(yytext, yyleng);\n\
+      thunk->action(yytext, yyleng, thunk->begin);\n					\
     }\n\
   yythunkpos= 0;\n\
 }\n\
@@ -696,7 +696,7 @@ void Rule_compile_c(Node *node)
   fprintf(output, "\n");
   for (n= actions;  n;  n= n->action.list)
     {
-      fprintf(output, "YY_ACTION(void) yy%s(char *yytext, int yyleng)\n{\n", n->action.name);
+      fprintf(output, "YY_ACTION(void) yy%s(char *yytext, int yyleng, int yyoff)\n{\n", n->action.name);
       defineVariables(n->action.rule->rule.variables);
       fprintf(output, "  yyprintf((stderr, \"do yy%s\\n\"));\n", n->action.name);
       fprintf(output, "  %s;\n", n->action.text);
